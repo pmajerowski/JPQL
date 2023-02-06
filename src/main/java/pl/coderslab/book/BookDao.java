@@ -19,4 +19,24 @@ public class BookDao {
     public Book findById(long id) {
         return entityManager.find(Book.class, id);
     }
+
+    public void delete(Book book) {
+        Book persistedBook = entityManager.contains(book) ? book : entityManager.merge(book);
+        entityManager.remove(persistedBook);
+    }
+
+    public void deleteById(long id) {
+        Book book = entityManager.find(Book.class, id);
+        entityManager.remove(book);
+    }
+
+    public void update(Book book) {
+        entityManager.merge(book);
+    }
+
+    public Book updateTitleById(long id, String title) {
+        Book book = entityManager.find(Book.class, id);
+        book.setTitle(title);
+        return book;
+    }
 }

@@ -30,4 +30,23 @@ public class BookController {
         Book book = bookDao.findById(id);
         return book.toString();
     }
+
+    @RequestMapping("/book/delete/{id}")
+    @ResponseBody
+    public String deleteBook(@PathVariable long id) {
+        Book book = bookDao.findById(id);
+        bookDao.delete(book);
+//        bookDao.deleteById(id);
+        return "deleted";
+    }
+
+    @RequestMapping("/book/update/{id}/{title}")
+    @ResponseBody
+    public String updateBook(@PathVariable long id, @PathVariable String title) {
+        Book book = bookDao.findById(id);
+        book.setTitle(title);
+        bookDao.update(book);
+//        Book book = bookDao.updateTitleById(id, title);
+        return book.toString();
+    }
 }

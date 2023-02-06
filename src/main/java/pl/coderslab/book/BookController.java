@@ -36,7 +36,6 @@ public class BookController {
     public String deleteBook(@PathVariable long id) {
         Book book = bookDao.findById(id);
         bookDao.delete(book);
-//        bookDao.deleteById(id);
         return "deleted";
     }
 
@@ -46,7 +45,6 @@ public class BookController {
         Book book = bookDao.findById(id);
         book.setTitle(title);
         bookDao.update(book);
-//        Book book = bookDao.updateTitleById(id, title);
         return book.toString();
     }
 }

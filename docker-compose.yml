@@ -1,0 +1,15 @@
+version: "3.1"
+
+services:
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: coderslab
+    ports:
+      - "3306:3306"
+    volumes:
+      - coderslab_mysql8_data:/var/lib/mysql
+
+volumes:
+  coderslab_mysql8_data:

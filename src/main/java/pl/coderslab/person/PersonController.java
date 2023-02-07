@@ -1,41 +1,36 @@
 package pl.coderslab.person;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class PersonController {
     private final PersonDao personDao;
-    private  final PersonDetailsDao personDetailsDao;
+    private final PersonDetailsDao personDetailsDao;
 
     public PersonController(PersonDao personDao, PersonDetailsDao personDetailsDao) {
         this.personDao = personDao;
         this.personDetailsDao = personDetailsDao;
     }
 
+
     @GetMapping("/person/add")
-    @ResponseBody
-    public String addPerson() {
-        PersonDetails personDetails = new PersonDetails();
-        personDetails.setCity("Warsaw");
-        personDetails.setFirstName("Maria");
-        personDetails.setLastName("Rokita");
-        personDetails.setStreet("Brzozowa");
-        personDetails.setStreetNumber(44);
-        personDetailsDao.savePersonDetails(personDetails);
-
-        Person person = new Person();
-        person.setDetails(personDetails);
-
-        person.setEmail("test@wp.pl");
-        person.setLogin("rybak101");
-        person.setPassword("pawiany_wchodza_na_sciany087");
-        personDao.savePerson(person);
-        return "Created person id: " + person.getId() + "\n" + person.toString();
+//    @ResponseBody
+    public String addPersonForm(Model model) {
+        Person predefinedPerson = new Person();
+        predefinedPerson.setLogin("login");
+        model.addAttribute("person", predefinedPerson);
+        return "/person/add";
     }
+
+    @PostMapping("/person/add")
+    @ResponseBody
+    public String addPerson(Person person, Model model) {
+        personDao.savePerson(person);
+        return person.toString();
+    }
+
 
     @RequestMapping("/person/get/{id}")
     @ResponseBody
@@ -62,4 +57,6 @@ public class PersonController {
         personDao.update(person);
         return person.toString();
     }
+
+
 }

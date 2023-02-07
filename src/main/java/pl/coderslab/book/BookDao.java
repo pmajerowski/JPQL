@@ -35,34 +35,30 @@ public class BookDao {
 
     public List<Book> findAll() {
         TypedQuery<Book> query = entityManager.createQuery("select b from Book b join fetch b.publisher", Book.class);
-        List<Book> books = query.getResultList();
-        return books;
+        return query.getResultList();
     }
 
     public List<Book> findAllByRating(int rating) {
         TypedQuery<Book> query = entityManager.createQuery("select b from Book b where b.rating = :rating", Book.class);
         query.setParameter("rating", rating);
-        List<Book> books = query.getResultList();
-        return books;
+        return query.getResultList();
     }
 
     public List<Book> findAllBooksThatHaveAnyPublisher() {
-        TypedQuery<Book> query = entityManager.createQuery("select b from Book b where b.publisher is not null", Book.class);
+        TypedQuery<Book> query = entityManager.createQuery("select b from Book b join b.publisher", Book.class);
         return query.getResultList();
     }
 
     public List<Book> findAllBooksForGivenPublisher(Publisher publisher) {
         TypedQuery<Book> query = entityManager.createQuery("select b from Book b where b.publisher = :publisher", Book.class);
         query.setParameter("publisher", publisher);
-        List<Book> books = query.getResultList();
-        return books;
+        return query.getResultList();
     }
 
     public List<Book> findAllBooksForGivenAuthor(Author author) {
-        TypedQuery<Book> query = entityManager.createQuery("select b from Book b join fetch b.authors " +
-                "where :author member of b.authors", Book.class);
+        TypedQuery<Book> query = entityManager.createQuery(
+                "select distinct b from Book b join fetch b.authors where :author member of b.authors", Book.class);
         query.setParameter("author", author);
-        List<Book> books = query.getResultList();
-        return books;
+        return query.getResultList();
     }
 }

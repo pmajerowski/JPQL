@@ -9,13 +9,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pl.coderslab.author.Author;
 import pl.coderslab.author.AuthorDao;
+import pl.coderslab.author.AuthorRepository;
+import pl.coderslab.category.Category;
 import pl.coderslab.category.CategoryRepository;
 import pl.coderslab.publisher.Publisher;
 import pl.coderslab.publisher.PublisherDao;
+import pl.coderslab.publisher.PublisherRepository;
 
+import javax.swing.text.html.Option;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Controller
@@ -27,12 +32,17 @@ public class BookController {
     private final PublisherDao publisherDao;
     private final AuthorDao authorDao;
     private final Validator validator;
-    public BookController(BookRepository bookRepository, CategoryRepository categoryRepository, PublisherDao publisherDao, AuthorDao authorDao, Validator validator) {
+    private final AuthorRepository authorRepository;
+    private final PublisherRepository publisherRepository;
+
+    public BookController(BookRepository bookRepository, CategoryRepository categoryRepository, PublisherDao publisherDao, AuthorDao authorDao, Validator validator, AuthorRepository authorRepository, PublisherRepository publisherRepository) {
         this.bookRepository = bookRepository;
         this.categoryRepository = categoryRepository;
         this.publisherDao = publisherDao;
         this.authorDao = authorDao;
         this.validator = validator;
+        this.authorRepository = authorRepository;
+        this.publisherRepository = publisherRepository;
     }
 
     @GetMapping("/book/add")
@@ -107,12 +117,39 @@ public class BookController {
     @GetMapping("/book/category")
     @ResponseBody
     public String getAllBooksByCategory() {
-//        Category category = categoryRepository.getOne(3L);
         List<Book> books = categoryRepository.findById(1L)
                 .map(c -> bookRepository.findByCategory(c))
                 .orElse(List.of());
         return books.toString();
     }
+
+    @GetMapping("/book/author")
+    @ResponseBody
+    public String getAllBooksByAuthor() {
+        List<Book> books = authorRepository.findById(4L)
+                .map(bookRepository::findByAuthors)
+                .orElse(List.of());
+        return books.toString();
+    }
+
+    @GetMapping("/book/publisher")
+    @ResponseBody
+    public String getAllBooksByPublisher() {
+        List<Book> books = publisherRepository.findById(1L)
+                .map(bookRepository::findByPublisher)
+                .orElse(List.of());
+        return books.toString();
+    }
+
+    @GetMapping("/book/category/title")
+    @ResponseBody
+    public String getBookByCategoryOrderByName() {
+        return categoryRepository.findById(24L)
+                .flatMap(bookRepository::findFirstByCategoryOrderByTitle)
+                .map(Book::toString)
+                .orElse("");
+    }
+
 
     @GetMapping("/book/validate")
     @ResponseBody
@@ -124,7 +161,8 @@ public class BookController {
             logger.info("Book is invalid");
             for (ConstraintViolation<Book> constraintViolation : violations) {
                 logger.info(constraintViolation.getPropertyPath() + " "
-                        + constraintViolation.getMessage()); }
+                        + constraintViolation.getMessage());
+            }
         } else {
             logger.info("Book is valid");
         }

@@ -9,10 +9,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pl.coderslab.book.Book;
-import pl.coderslab.book.BookController;
+import pl.coderslab.book.BookRepository;
+import pl.coderslab.category.CategoryRepository;
+import pl.coderslab.publisher.PublisherDao;
+import pl.coderslab.publisher.PublisherRepository;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+import java.util.List;
 import java.util.Set;
 
 @Controller
@@ -21,10 +25,20 @@ public class AuthorController {
 
     private final Validator validator;
     private final AuthorDao authorDao;
+    private final BookRepository bookRepository;
+    private final CategoryRepository categoryRepository;
+    private final PublisherDao publisherDao;
+    private final AuthorRepository authorRepository;
+    private final PublisherRepository publisherRepository;
 
-    public AuthorController(AuthorDao authorDao, Validator validator) {
+    public AuthorController(AuthorDao authorDao, Validator validator, BookRepository bookRepository, CategoryRepository categoryRepository, PublisherDao publisherDao, AuthorRepository authorRepository, PublisherRepository publisherRepository) {
         this.authorDao = authorDao;
         this.validator = validator;
+        this.bookRepository = bookRepository;
+        this.categoryRepository = categoryRepository;
+        this.publisherDao = publisherDao;
+        this.authorRepository = authorRepository;
+        this.publisherRepository = publisherRepository;
     }
 
     @GetMapping("/author/add")
@@ -60,6 +74,31 @@ public class AuthorController {
         return author.toString();
     }
 
+    @GetMapping("/author/email")
+    @ResponseBody
+    public String getAuthorByEmail(String email) {
+        email = authorRepository.findById(3L).get().getEmail();
+        return authorRepository.findFirstByEmail(email)
+                .map(a -> a.toString())
+                .orElse("");
+    }
+
+    @GetMapping("/author/pesel")
+    @ResponseBody
+    public String getAuthorByPesel(String pesel) {
+        pesel = authorRepository.findById(4L).get().getPesel();
+        return authorRepository.findFirstByPesel(pesel)
+                .map(Author::toString)
+                .orElse("");
+    }
+
+    @GetMapping("/author/lastName")
+    @ResponseBody
+    public String getAllAuthorsByLastName(String lastName) {
+        lastName = authorRepository.findById(6L).get().getLastName();
+        return authorRepository.findAllByLastName(lastName).toString();
+    }
+
     @GetMapping("/author/validate")
 //    @ResponseBody
     public String validate(Model model) {
@@ -79,4 +118,6 @@ public class AuthorController {
         }
         return "author/validate";
     }
+
+
 }

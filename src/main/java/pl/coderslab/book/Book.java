@@ -2,6 +2,7 @@
 package pl.coderslab.book;
 
 import pl.coderslab.author.Author;
+import pl.coderslab.category.Category;
 import pl.coderslab.publisher.Publisher;
 
 import javax.persistence.Column;
@@ -27,6 +28,16 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name = "books")
 public class Book {
+    @ManyToOne
+    @JoinColumn(name = "publisher_id")
+    @NotNull
+    Publisher publisher;
+    @ManyToMany
+    @JoinTable(name = "books_authors",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id"))
+//    @NotEmpty
+    List<Author> authors = new ArrayList<>();
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
@@ -41,15 +52,15 @@ public class Book {
     @Min(2)
     private int pages;
     @ManyToOne
-    @JoinColumn(name = "publisher_id")
-    @NotNull
-    Publisher publisher;
-    @ManyToMany
-    @JoinTable(name = "books_authors",
-            joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "author_id"))
-//    @NotEmpty
-    List<Author> authors = new ArrayList<>();
+    private Category category;
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 
     public List<Author> getAuthors() {
         return authors;
@@ -65,19 +76,6 @@ public class Book {
 
     public void setPublisher(Publisher publisher) {
         this.publisher = publisher;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Book book = (Book) o;
-        return Objects.equals(id, book.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 
     public Long getId() {

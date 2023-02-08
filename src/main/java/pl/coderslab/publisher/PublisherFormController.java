@@ -2,10 +2,13 @@ package pl.coderslab.publisher;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import pl.coderslab.author.Author;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Controller
@@ -24,7 +27,10 @@ public class PublisherFormController {
     }
 
     @PostMapping("/publisher/save")
-    public String savePublisher(Publisher publisher) {
+    public String savePublisher(@Valid Publisher publisher, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "/publisher/new";
+        }
         publisherDao.savePublisher(publisher);
         return "redirect:/publisher/list";
     }

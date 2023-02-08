@@ -1,16 +1,28 @@
 package pl.coderslab.publisher;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pl.coderslab.author.Author;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import java.util.Set;
 
 @Controller
 public class PublisherController {
+    private static final Logger logger = LoggerFactory.getLogger(PublisherController.class);
+
+    private final Validator validator;
     private final PublisherDao publisherDao;
 
-    public PublisherController(PublisherDao publisherDao) {
+    public PublisherController(Validator validator, PublisherDao publisherDao) {
+        this.validator = validator;
         this.publisherDao = publisherDao;
     }
 
@@ -43,5 +55,25 @@ public class PublisherController {
         Publisher publisher = publisherDao.findById(id);
         publisher.setName(name);
         return publisher.toString();
+    }
+
+    @GetMapping("/publisher/validate")
+//    @ResponseBody
+    public String validate(Model model) {
+        Publisher publisher = new Publisher();
+        publisher.setName("AB");
+        publisher.setNip("dgeg");
+        publisher.setRegon("erererer.pl");
+        Set<ConstraintViolation<Publisher>> violations = validator.validate(publisher);
+
+        if (!violations.isEmpty()) {
+            model.addAttribute("violations", violations);
+            for (ConstraintViolation<Publisher> constraintViolation : violations) {
+                logger.info(constraintViolation.getPropertyPath() + " "
+                        + constraintViolation.getMessage()); }
+        } else {
+            model.addAttribute("violations", violations);
+        }
+        return "publisher/validate";
     }
 }

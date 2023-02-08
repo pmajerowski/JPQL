@@ -1,6 +1,9 @@
 package pl.coderslab.book;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,18 +13,25 @@ import pl.coderslab.author.AuthorDao;
 import pl.coderslab.publisher.Publisher;
 import pl.coderslab.publisher.PublisherDao;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 public class BookController {
+    private static final Logger logger = LoggerFactory.getLogger(BookController.class);
     private final BookDao bookDao;
     private final PublisherDao publisherDao;
     private  final AuthorDao authorDao;
+    private final Validator validator;
 
-    public BookController(BookDao bookDao, PublisherDao publisherDao, AuthorDao authorDao) {
+    public BookController(BookDao bookDao, PublisherDao publisherDao, AuthorDao authorDao, Validator validator) {
         this.bookDao = bookDao;
         this.publisherDao = publisherDao;
         this.authorDao = authorDao;
+
+        this.validator = validator;
     }
 
     @GetMapping("/book/add")
@@ -99,5 +109,23 @@ public class BookController {
     public String findBooksByAuthorId(@PathVariable int id) {
         Author author = authorDao.findById(id);
         return bookDao.findAllBooksForGivenAuthor(author).toString();
+    }
+
+    @GetMapping("/book/validate")
+//    @ResponseBody
+    public String validate(Model model) {
+        Book book = new Book();
+        book.setTitle("AB");
+        Set<ConstraintViolation<Book>> violations = validator.validate(book);
+
+        if (!violations.isEmpty()) {
+            model.addAttribute("violations", violations);
+            for (ConstraintViolation<Book> constraintViolation : violations) {
+                logger.info(constraintViolation.getPropertyPath() + " "
+                        + constraintViolation.getMessage()); }
+        } else {
+            model.addAttribute("violations", violations);
+        }
+        return "book/validate";
     }
 }

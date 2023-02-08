@@ -53,11 +53,11 @@ public class BookController {
     }
 
     @RequestMapping("/book/delete/{id}")
-    @ResponseBody
+//    @ResponseBody
     public String deleteBook(@PathVariable long id) {
         Book book = bookDao.findById(id);
         bookDao.delete(book);
-        return "deleted";
+        return "redirect:/book/list";
     }
 
     @RequestMapping("/book/update/{id}/{title}")

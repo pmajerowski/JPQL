@@ -31,14 +31,13 @@ public class PublisherController {
     }
 
     @RequestMapping("/publisher/delete/{id}")
-    @ResponseBody
     public String deletePublisher(@PathVariable long id) {
         Publisher publisher = publisherDao.findById(id);
         publisherDao.delete(publisher);
-        return "deleted";
+        return "redirect:/publisher/list";
     }
 
-    @RequestMapping("/author/update/{id}/{name}")
+    @RequestMapping("/publisher/update/{id}/{name}")
     @ResponseBody
     public String updatePublisher(@PathVariable long id, @PathVariable String name) {
         Publisher publisher = publisherDao.findById(id);

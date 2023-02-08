@@ -40,6 +40,14 @@ public class Author {
                 '}';
     }
 
+    public String getName() {
+        return firstName + " " + lastName;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Long getId() {
         return id;
     }

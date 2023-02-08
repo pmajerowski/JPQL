@@ -1,5 +1,6 @@
 package pl.coderslab.book;
 
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Repository;
 import pl.coderslab.author.Author;
 import pl.coderslab.publisher.Publisher;
@@ -21,7 +22,9 @@ public class BookDao {
     }
 
     public Book findById(long id) {
-        return entityManager.find(Book.class, id);
+        Book book = entityManager.find(Book.class, id);
+        Hibernate.initialize(book.getAuthors());
+        return book;
     }
 
     public void delete(Book book) {
@@ -34,7 +37,7 @@ public class BookDao {
     }
 
     public List<Book> findAll() {
-        TypedQuery<Book> query = entityManager.createQuery("select b from Book b join fetch b.publisher", Book.class);
+        TypedQuery<Book> query = entityManager.createQuery("select b from Book b join fetch b.authors a", Book.class);
         return query.getResultList();
     }
 
